@@ -1,0 +1,102 @@
+.App {
+  text-align: center;
+}
+
+.container{
+  position: relative;
+  width: 95%;
+  max-width: 1000px;
+  display: block;
+  margin: auto;
+}
+
+.container > div:nth-child(1){
+  position: absolute;
+  top: -40px;
+  right: 0px;
+}
+.container > div:nth-child(3){
+  padding: 15px;
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+}
+
+.container > video{
+  width: 100%;
+}
+
+.buttonGroup{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: 'relative';
+  width: 100%;
+}
+
+.buttonGroup button{
+  width: 40px; 
+  height: 40px;
+  position: relative; 
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttonGroup > div:nth-child(1) > button:nth-child(1), 
+.buttonGroup > div:nth-child(1) > button:nth-child(2){
+  font-size: 30px;
+  width: 60px; 
+  height: 60px;
+}
+
+.buttonGroup > div:nth-child(2){
+  position: absolute;
+  right: 0px;
+  width: 100px;
+  display: flex;
+}
+
+.burst{
+  position: absolute;
+  top: 14px;
+  left: 8px;
+  background-color: white;
+}
+
+.imageContainer{
+  padding: 10px;
+  width: auto;
+  display: block;
+  margin: auto;
+  max-width: 1000px;
+}
+
+#tempImg{
+  position: absolute;
+  width: 100%;
+  right:0px;
+  left: 0px;
+  z-index: 10;
+}
+
+.thumbnail{
+  position: relative;
+  width: 100px; 
+  display: inline-block;
+  margin: 5px;
+}
+
+.thumbnail.shrink{
+  animation: shrink 1.1s;
+}
+
+@keyframes shrink{
+  0%{
+    transform: scale(1);
+  }
+  100%{
+    transform: scale(0);
+  }
+}
