@@ -9,7 +9,7 @@ import '../App.css';
 
 const Image = (props) =>{
 
-    const {setImages, src} = props
+    const {setImages, setImage, onSetImage, src} = props
 
     const [showOptions, setShowOptions] = useState(false)
     const [className, setClassName] = useState('thumbnail')
@@ -26,41 +26,20 @@ const Image = (props) =>{
 
     return <div className={className}
                 onMouseEnter={()=>setShowOptions(true)} 
-                onMouseLeave={()=>setShowOptions(false)}
+                onMouseLeave={()=>{
+                    setTooltip(false)
+                    setShowOptions(false)
+                }}
                 >
-        {showOptions 
-            ? <div style={{
-            position: 'absolute', 
-            top: 0, 
-            left: 0, 
-            width: '100%', 
-            height: '100%',
-            backgroundColor: 'white',
-            opacity: 0.7,
-            display: 'inline-flex'
-            }}/>
-            : null
-        }
-
-        {showOptions 
-            ? <div style={{ position: 'absolute', 
-            top: 0, 
-            left: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%', 
-            fontSize: 25,
-            height: '100%'}}>
+        <div className="thumbCloud" style={{opacity: showOptions ? 0.7 : 0}}/>
+        <div className="thumbOpts" style={{opacity: showOptions ? 1 : 0}}>
                 <Tooltip title="View" overlayStyle={{zIndex: 10}}>
-                    <PictureFilled style={{marginRight: 10}}/>
+                    <PictureFilled style={{marginRight: 10}} onClick={()=>onSetImage(src)}/>
                 </Tooltip>
                 <Tooltip title="Delete" visible={tooltip}>
                     <DeleteFilled onClick={onDelete} onMouseEnter={()=>setTooltip(true)} onMouseLeave={()=>setTooltip(false)}/>
                 </Tooltip>
             </div>
-            : null
-        }
         <img src={src} style={{width: 100}}/>
     </div>
 

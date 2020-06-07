@@ -10,7 +10,7 @@ import '../App.css';
 
 const ButtonGroup = (props) =>{
 
-    const {images, onScreenshot, setImages, onDownload} = props;
+    const {images, onScreenshot, setImages, onDownload, onBurst} = props;
 
     var downloadTooltip = 'Download';
 
@@ -21,7 +21,7 @@ const ButtonGroup = (props) =>{
     return <div className='buttonGroup'>
         <div style={{width: '99%', display: 'flex', justifyContent: 'center'}}>
         <Tooltip title="Burst">
-            <Button shape="circle" style={{marginRight: 10}}>
+            <Button shape="circle" style={{marginRight: 10}} onClick={onBurst}>
                 <PictureOutlined className='burst' style={{marginLeft: 0}}/>
                 <PictureOutlined className='burst' style={{marginLeft: 5}}/>
                 <PictureOutlined className='burst' style={{marginLeft: 10}}/>

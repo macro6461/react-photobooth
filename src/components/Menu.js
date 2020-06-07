@@ -2,7 +2,9 @@ import React, {useState, useEffect} from 'react';
 import { SettingOutlined, 
     ToolOutlined,
     PictureOutlined,
-    FieldTimeOutlined
+    FieldTimeOutlined,
+    ApiOutlined,
+    DisconnectOutlined
 } from '@ant-design/icons';
 import {Drawer, Collapse, Card, Select, InputNumber, Tooltip} from 'antd'
 import "antd/dist/antd.css";
@@ -13,7 +15,7 @@ const Option = Select.Option;
 
 const Menu = (props) =>{
 
-    const {setFormat, format, formats, burst, setBurst, burstRate, setBurstRate} = props;
+    const {setFormat, format, formats, burst, setBurst, burstRate, setBurstRate, cutFeed, setCutFeed} = props;
 
     const [showMenu, setShowMenu] = useState(false)
     
@@ -24,6 +26,11 @@ const Menu = (props) =>{
 
     const handleDrawer = (x) =>{
         setShowMenu(x)
+    };
+
+    const handleCut = () =>{
+        setShowMenu(false)
+        setCutFeed(!cutFeed)
     };
 
     return (<Card className="menu">
@@ -39,6 +46,12 @@ const Menu = (props) =>{
             footerStyle={itemStyle}
             visible={showMenu}
             getContainer={false}
+            footer={
+                <p style={{position: 'relative', padding: '0 10px 0 10px', cursor: 'pointer'}}  onClick={handleCut} >
+                    {cutFeed ? 'Start Video Feed' : 'End Video Feed'}
+                    {cutFeed ? <ApiOutlined style={{fontSize: 25}}/> : <DisconnectOutlined style={{fontSize: 25}}/> }
+                </p>
+            }
       >
       <Collapse accordion>
         <Panel header={<p>Image Format <ToolOutlined /></p>} key="1" showArrow={false}> 

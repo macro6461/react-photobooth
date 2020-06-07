@@ -3,6 +3,11 @@ import {Select} from 'antd';
 import ButtonGroup from './ButtonGroup';
 import ImageContainer from './ImageContainer';
 import {saveAs} from 'save-as';
+import {
+    VideoCameraOutlined, 
+    LoadingOutlined,
+    VideoCameraAddOutlined
+  } from '@ant-design/icons';
 var JSZip = require("jszip");
 
 const Option = Select.Option;
@@ -13,11 +18,32 @@ class Capture extends Component {
         images: [],
         format: null,
         stream: null, 
-        showScreenshot: false
+        showScreenshot: false,
+        feedForceEnd: false,
+        interval: null
     }
 
     componentDidMount = () => {
-        this.hasGetUserMedia()
+        if (!this.props.cutFeed){
+            this.hasGetUserMedia()
+            this.setState({feedForceEnd: false})
+        } else {
+            this.setState({feedForceEnd: true})
+        }
+    }
+
+    componentDidUpdate = (prevProps, prevState) =>{
+        if (this.props.cutFeed !== this.state.feedForceEnd){
+            this.setState({
+                feedForceEnd: this.props.cutFeed
+            }, ()=>{
+                if (!this.state.feedForceEnd){
+                    this.hasGetUserMedia()
+                } else {
+                    this.onCutFeed()
+                }
+            })
+        }
     }
     
     hasGetUserMedia = () => {
@@ -56,11 +82,11 @@ class Capture extends Component {
         }, 1000)
     }
     
-    onDownload = () => {
-        const {image, images} = this.state
+    onDownload = (x) => {
+        const {images} = this.state
         const {format} = this.props
-        if (image){
-            this.handleDownload(image, 'react-photobooth-image' + format)
+        if (x){
+            this.handleDownload(x, 'react-photobooth-image' + format)
         } else if (images.length > 1){
             var zip = new JSZip();
             var img = zip.folder("photobooth-images");
@@ -99,37 +125,61 @@ class Capture extends Component {
         this.setState({images})
     };
 
+    onBurst = () =>{
+        var count = 0
+
+        var interval = setInterval(()=>{
+            this.onScreenshot()
+            count++
+            if (count === this.props.burst){
+                clearInterval(this.state.interval)
+                this.setState({interval: null})
+            }
+        }, this.props.burstRate * 1000)
+
+        this.setState({interval})
+    }
+
+    onCutFeed = () =>{
+        var video = document.querySelector("video");
+        this.setState({stream: null}, ()=>{
+            video.srcObject.getVideoTracks().forEach(track => track.stop())
+        })
+    }
+
     render() {
 
-        const {setImages, state, onDownload, clearAll, onScreenshot} = this;
+        const {setImages, state, onDownload, clearAll, onScreenshot, onBurst} = this;
         const {images, showScreenshot, stream} = state
 
         return (<div>
             <div className='container' style={{border: !stream ? 'solid 1px black' : null}}>
-            <div>
-                {/* <label htmlFor="select"> Format </label>
-                <Select id="select" onChange={(format)=>this.setState({format})} style={{minWidth: 100}} defaultValue={'.png'}>
-                    {formats.map(format=>{
-                        return <Option key={format.val} value={format.val}>{format.name}</Option>
-                    })}
-                </Select> */}
+                <video autoPlay id="video"/>
+                {!stream 
+                    ? <div className="dummyContainer" onClick={this.state.feedForceEnd ? ()=>this.props.setCutFeed(false) : null}>
+                        <div>
+                            {!this.state.feedForceEnd ? <VideoCameraOutlined/> : <VideoCameraAddOutlined style={{cursor: 'pointer'}} /> }
+                            {!this.state.feedForceEnd ? <h3>Establishing Feed <LoadingOutlined/></h3> : <h3> Click To Start Feed </h3>}
+                        </div>
+                    </div> 
+                    : null
+                }
+                {showScreenshot ? <img id="tempImg"/> : null}
+                <div>
+                {!showScreenshot && stream
+                ? <ButtonGroup 
+                    onDownload={onDownload} 
+                    onClearAll={clearAll}
+                    images={images}
+                    onScreenshot={onScreenshot}
+                    setImages={setImages}
+                    onBurst={onBurst}
+                />
+                : null
+                }
             </div>
-            <video autoPlay id="video"/>
-            {showScreenshot ? <img id="tempImg"/> : null}
-            <div>
-            {!showScreenshot 
-            ? <ButtonGroup 
-                onDownload={onDownload} 
-                onClearAll={clearAll}
-                images={images}
-                onScreenshot={onScreenshot}
-                setImages={setImages}
-            />
-            : null
-            }
-              </div>
         </div>
-        <ImageContainer images={images} setImages={setImages}/>
+        <ImageContainer images={images} setImages={setImages} format={this.props.format} handleDownload={this.handleDownload}/>
     </div>)
     }
 

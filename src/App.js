@@ -11,7 +11,8 @@ function App() {
 
   const [format, setFormat] = useState('.png')
   const [burst, setBurst] = useState(5)
-  const [burstRate, setBurstRate] = useState(1)
+  const [burstRate, setBurstRate] = useState(0.1)
+  const [cutFeed, setCutFeed] = useState(true)
 
   return (
     <div className="App">
@@ -22,8 +23,16 @@ function App() {
         format={format} 
         burstRate={burstRate}
         setBurstRate={setBurstRate}
+        setCutFeed={setCutFeed}
+        cutFeed={cutFeed}
         formats={formats}/>
-      <Capture format={format} burst={burst} burstRate={burstRate}/>
+      <Capture 
+        cutFeed={cutFeed} 
+        setCutFeed={setCutFeed}
+        format={format} 
+        burst={burst} 
+        burstRate={burstRate}
+      />
     </div>
   );
 }
