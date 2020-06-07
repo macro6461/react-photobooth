@@ -22,7 +22,7 @@ const ImageContainer = (props) =>{
     }
 
     var imgs = images.length === 0 
-    ? <p>No Photos</p> 
+    ? <p>No Media</p> 
     : images.map(x=>{
         return <Image src={x} key={x} setImage={setImage} onSetImage={onSetImage} setImages={setImages}/>
     })

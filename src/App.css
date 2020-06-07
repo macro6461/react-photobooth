@@ -112,7 +112,8 @@ p{
 }
 
 .buttonGroup > div:nth-child(1) > button:nth-child(1), 
-.buttonGroup > div:nth-child(1) > button:nth-child(2){
+.buttonGroup > div:nth-child(1) > button:nth-child(2),
+.buttonGroup > div:nth-child(1) > button:nth-child(3){
   font-size: 30px;
   width: 60px; 
   height: 60px;
@@ -198,7 +199,6 @@ p{
   justify-content: center;
   font-size: 50px;
   background-color: white;
-  cursor: pointer;
 }
 
 .dummyContainer > div> h3{

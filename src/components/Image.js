@@ -30,7 +30,7 @@ const Image = (props) =>{
                     setTooltip(false)
                     setShowOptions(false)
                 }}
-                >
+            >
         <div className="thumbCloud" style={{opacity: showOptions ? 0.7 : 0}}/>
         <div className="thumbOpts" style={{opacity: showOptions ? 1 : 0}}>
                 <Tooltip title="View" overlayStyle={{zIndex: 10}}>

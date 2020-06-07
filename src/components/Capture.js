@@ -16,14 +16,16 @@ class Capture extends Component {
 
     state = {
         images: [],
+        videos: [],
         format: null,
         stream: null, 
         showScreenshot: false,
         feedForceEnd: false,
-        interval: null
+        interval: null,
+        isRecording: false
     }
 
-    componentDidMount = () => {
+    componentDidMount = () => { 
         if (!this.props.cutFeed){
             this.hasGetUserMedia()
             this.setState({feedForceEnd: false})
@@ -81,6 +83,64 @@ class Capture extends Component {
             this.setState({showScreenshot: false})
         }, 1000)
     }
+
+    onVideo1 = () =>{
+        var video = document.querySelector('video')
+        video.captureStream = video.captureStream || video.mozCaptureStream;
+        return new Promise(resolve => video.onplaying = resolve)
+        .then(()=>this.onVideo2(video.captureStream))
+        .then(chunks=>{
+            let recordedBlob = new Blob(chunks, { type: "video/webm" });
+            var video = URL.createObjectURL(recordedBlob)
+            this.setVideos(video, true)
+        })
+    };
+
+    onVideo2 = (boi) =>{
+        this.setState({isRecording: true})
+        let recorder = new MediaRecorder(boi);
+        let data = [];
+        
+        recorder.ondataavailable = event => data.push(event.data);
+        recorder.start();
+        
+        let stopped = new Promise((resolve, reject) => {
+            recorder.onstop = resolve;
+            recorder.onerror = event => reject(event.name);
+        });
+
+        let recorded = this.getProm().then(
+            () => recorder.state == "recording" && recorder.stop()
+        );
+
+        return Promise.all([
+            stopped,
+            recorded
+        ])
+        .then(() => data);
+    };
+
+    getProm = () =>{
+        return new Promise(resolve => resolve)
+    };
+
+    setVideos = (a, b) =>{
+        var {videos} = this.state
+        if (b){
+            videos.push(a)
+        } else {
+            videos = videos.filter(x=>x !== a)
+        }
+        this.setState({videos})
+    }
+
+    endVideo = () =>{
+        var {stream} = this.state
+        stream.getTracks().forEach(track => track.stop());
+        this.setState({isRecording: false}, ()=>{
+            this.hasGetUserMedia()
+        })
+    }
     
     onDownload = (x) => {
         const {images} = this.state
@@ -115,15 +175,19 @@ class Capture extends Component {
 
     setImages = (data, action) => {
         var {images} = this.state
-        if (data === 'all'){
-            images = []
-        } else if (action){
+        if (action){
             images.push(data)
         } else {
             images = images.filter(x=>x !== data)
         }
         this.setState({images})
     };
+
+    deleteAllMedia = () =>{
+        this.setState({
+            videos: [], images: []
+        })
+    }
 
     onBurst = () =>{
         var count = 0
@@ -149,8 +213,8 @@ class Capture extends Component {
 
     render() {
 
-        const {setImages, state, onDownload, clearAll, onScreenshot, onBurst} = this;
-        const {images, showScreenshot, stream} = state
+        const {setImages, state, onDownload, clearAll, onScreenshot, onBurst, onVideo,endVideo, deleteAllMedia} = this;
+        const {images, videos, showScreenshot, stream, isRecording} = state
 
         return (<div>
             <div className='container' style={{border: !stream ? 'solid 1px black' : null}}>
@@ -174,12 +238,16 @@ class Capture extends Component {
                     onScreenshot={onScreenshot}
                     setImages={setImages}
                     onBurst={onBurst}
+                    onVideo={onVideo}
+                    endVideo={endVideo}
+                    isRecording={isRecording}
+                    deleteAllMedia={deleteAllMedia}
                 />
                 : null
                 }
             </div>
         </div>
-        <ImageContainer images={images} setImages={setImages} format={this.props.format} handleDownload={this.handleDownload}/>
+        <ImageContainer videos={videos} images={images} setImages={setImages} format={this.props.format} handleDownload={this.handleDownload}/>
     </div>)
     }
 
