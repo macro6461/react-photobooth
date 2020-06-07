@@ -1,5 +1,58 @@
-.App {
+.App{
   text-align: center;
+}
+
+p{
+  margin-bottom: 0px !important;
+}
+
+.menu{
+  width: 100%; 
+  position: fixed; 
+  top: 0px; 
+}
+
+.menu > div{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 20px 10px 20px;
+}
+
+.menu > div > h1{
+  margin-bottom: 0px;
+  width: 100%;
+}
+
+.menu > div p{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.description{
+  margin-bottom: 10px !important;
+}
+
+.menu-item{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  box-shadow: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.menu-item:hover{
+  box-shadow: 2px 2px 5px grey;
+  width: 101%;
+  padding: 12px;
+  font-size: 18px;
 }
 
 .container{
@@ -8,6 +61,7 @@
   max-width: 1000px;
   display: block;
   margin: auto;
+  margin-top: 10px;
 }
 
 .container > div:nth-child(1){

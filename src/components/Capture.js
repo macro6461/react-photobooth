@@ -2,9 +2,10 @@ import React, {Component} from 'react';
 import {Select} from 'antd';
 import ButtonGroup from './ButtonGroup';
 import ImageContainer from './ImageContainer';
-const Option = Select.Option;
+import {saveAs} from 'save-as';
+var JSZip = require("jszip");
 
-const formats = [{val:'.png', name: 'PNG'}, {val:'.jpeg', name: 'JPEG'}, {val:'.jpg', name: 'JPG'}, {val:'.tiff', name: 'TIFF'}]
+const Option = Select.Option;
 
 class Capture extends Component {
 
@@ -15,7 +16,7 @@ class Capture extends Component {
         showScreenshot: false
     }
 
-    componentDidMount = () =>{
+    componentDidMount = () => {
         this.hasGetUserMedia()
     }
     
@@ -52,14 +53,34 @@ class Capture extends Component {
         })
         setTimeout(()=>{
             this.setState({showScreenshot: false})
-        }, 2000)
+        }, 1000)
     }
     
     onDownload = () => {
-        const {image, format} = this.state
+        const {image, images} = this.state
+        const {format} = this.props
+        if (image){
+            this.handleDownload(image, 'react-photobooth-image' + format)
+        } else if (images.length > 1){
+            var zip = new JSZip();
+            var img = zip.folder("photobooth-images");
+            images.forEach((x, i)=>{
+                var content = x.split("base64,")[1]
+                img.file("image" + i + format, content, {base64: true})
+            })
+            zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                saveAs(content, "react-photobooth-images.zip")
+            });
+        } else {
+            this.handleDownload(images[0], 'react-photobooth-image' + format)
+        }
+    };
+
+    handleDownload = (data, name) => {
         var download = document.createElement('a');
-        download.href = image
-        download.download = 'yourScreenshot' + format;
+        download.href = data
+        download.download = name
         download.style.display = 'none';
         document.body.appendChild(download);
         download.click();
@@ -86,12 +107,12 @@ class Capture extends Component {
         return (<div>
             <div className='container' style={{border: !stream ? 'solid 1px black' : null}}>
             <div>
-                <label htmlFor="select"> Format </label>
+                {/* <label htmlFor="select"> Format </label>
                 <Select id="select" onChange={(format)=>this.setState({format})} style={{minWidth: 100}} defaultValue={'.png'}>
                     {formats.map(format=>{
                         return <Option key={format.val} value={format.val}>{format.name}</Option>
                     })}
-                </Select>
+                </Select> */}
             </div>
             <video autoPlay id="video"/>
             {showScreenshot ? <img id="tempImg"/> : null}

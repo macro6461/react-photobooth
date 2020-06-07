@@ -10,7 +10,7 @@ import '../App.css';
 
 const ButtonGroup = (props) =>{
 
-    const {images, onScreenshot, setImages} = props;
+    const {images, onScreenshot, setImages, onDownload} = props;
 
     var downloadTooltip = 'Download';
 
@@ -36,7 +36,7 @@ const ButtonGroup = (props) =>{
         {images.length > 0 
         ? <div>
             <Tooltip title={downloadTooltip}>
-                <Button shape="circle" style={{marginRight: 10}}>
+                <Button shape="circle" style={{marginRight: 10}} onClick={onDownload}>
                     <DownloadOutlined/>
                 </Button>
             </Tooltip>
