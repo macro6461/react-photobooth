@@ -8,8 +8,9 @@ p{
 
 .menu{
   width: 100%; 
-  position: fixed; 
-  top: 0px; 
+  position: fixed !important; 
+  z-index: 100;
+  top: -1px; 
 }
 
 .menu > div{
@@ -61,7 +62,7 @@ p{
   max-width: 1000px;
   display: block;
   margin: auto;
-  margin-top: 10px;
+  margin-top: 80px;
 }
 
 .container > div:nth-child(1){
@@ -124,6 +125,10 @@ p{
   right: 0px;
   width: 100px;
   display: flex;
+}
+
+.buttonGroup > div > button:active > span, .buttonGroup > div > button:focus > span {
+  position: absolute !important;
 }
 
 .burst{

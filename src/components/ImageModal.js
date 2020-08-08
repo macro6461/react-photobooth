@@ -7,11 +7,11 @@ import {
 
 const ImageModal = (props) =>{
 
-    const {visible, image, onSetImage, onDelete, onDownload} = props
+    const {visible, image, setImage, onDelete, onDownload} = props
 
     return <Modal
             visible={visible}
-            onCancel={()=>onSetImage(null)}
+            onCancel={()=>setImage(null)}
             closeIcon={<CloseCircleFilled/>}
             footer={
             <div style={{display: 'flex', width: 200, margin: 'auto', justifyContent: 'center'}}>

@@ -9,7 +9,7 @@ import '../App.css';
 
 const Image = (props) =>{
 
-    const {setImages, setImage, onSetImage, src} = props
+    const {handleRemoveImage, setImage, src} = props
 
     const [showOptions, setShowOptions] = useState(false)
     const [className, setClassName] = useState('thumbnail')
@@ -20,7 +20,7 @@ const Image = (props) =>{
         setTooltip(false)
         setClassName(temp)
         setTimeout(()=>{
-            setImages(src)
+            handleRemoveImage(src)
         }, 1000)
     }
 
@@ -34,7 +34,7 @@ const Image = (props) =>{
         <div className="thumbCloud" style={{opacity: showOptions ? 0.7 : 0}}/>
         <div className="thumbOpts" style={{opacity: showOptions ? 1 : 0}}>
                 <Tooltip title="View" overlayStyle={{zIndex: 10}}>
-                    <PictureFilled style={{marginRight: 10}} onClick={()=>onSetImage(src)}/>
+                    <PictureFilled style={{marginRight: 10}} onClick={()=>setImage(src)}/>
                 </Tooltip>
                 <Tooltip title="Delete" visible={tooltip}>
                     <DeleteFilled onClick={onDelete} onMouseEnter={()=>setTooltip(true)} onMouseLeave={()=>setTooltip(false)}/>

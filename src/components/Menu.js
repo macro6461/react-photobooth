@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
+import { useDispatch, useSelector } from "react-redux";
 import { SettingOutlined, 
     ToolOutlined,
     PictureOutlined,
@@ -7,17 +8,24 @@ import { SettingOutlined,
     DisconnectOutlined
 } from '@ant-design/icons';
 import {Drawer, Collapse, Card, Select, InputNumber, Tooltip} from 'antd'
+import {
+    // setFormat, setBurst, setBurstRate, setEnableFeed, 
+    updateSettings} from '../actions'
 import "antd/dist/antd.css";
 import '../App.css';
-import { Field } from 'rc-field-form';
 const { Panel } = Collapse;
 const Option = Select.Option;
 
-const Menu = (props) =>{
+const formats = [{val:'.png', name: 'PNG'}, {val:'.jpeg', name: 'JPEG'}, {val:'.jpg', name: 'JPG'}, {val:'.tiff', name: 'TIFF'}]
 
-    const {setFormat, format, formats, burst, setBurst, burstRate, setBurstRate, cutFeed, setCutFeed} = props;
+const Menu = (props) => {
 
     const [showMenu, setShowMenu] = useState(false)
+
+    const settings = useSelector(state => state.settings);
+    const dispatch = useDispatch();
+
+    const {burst, burstRate, enableFeed, format} = settings;
     
     const itemStyle={
         padding: '10px 0 10px 0', 
@@ -30,7 +38,7 @@ const Menu = (props) =>{
 
     const handleCut = () =>{
         setShowMenu(false)
-        setCutFeed(!cutFeed)
+        dispatch(updateSettings({enableFeed: !enableFeed}))
     };
 
     return (<Card className="menu">
@@ -48,15 +56,15 @@ const Menu = (props) =>{
             getContainer={false}
             footer={
                 <p style={{position: 'relative', padding: '0 10px 0 10px', cursor: 'pointer'}}  onClick={handleCut} >
-                    {cutFeed ? 'Start Video Feed' : 'End Video Feed'}
-                    {cutFeed ? <ApiOutlined style={{fontSize: 25}}/> : <DisconnectOutlined style={{fontSize: 25}}/> }
+                    {!enableFeed ? 'Start Video Feed' : 'End Video Feed'}
+                    {!enableFeed ? <ApiOutlined style={{fontSize: 25}}/> : <DisconnectOutlined style={{fontSize: 25}}/> }
                 </p>
             }
       >
       <Collapse accordion>
         <Panel header={<p>Image Format <ToolOutlined /></p>} key="1" showArrow={false}> 
         <p className='description'>What type of file do you want your images to be saved as?</p>
-        <Select onChange={(e)=>setFormat(e)} defaultValue={format} style={{width: "100%"}}>
+        <Select onChange={(e)=>dispatch(updateSettings({format: e}))} defaultValue={format} style={{width: "100%"}}>
             {formats.map(form => {
                 return <Option value={form.val} key={form.val}>{form.name}</Option>
             })}
@@ -68,11 +76,11 @@ const Menu = (props) =>{
                 <PictureOutlined className='burst' style={{marginLeft: 10, top: -4,left: -18, backgroundColor: '#fafafa'}}/>
             </span></p>} key="2" showArrow={false}>
             <p className='description'>How many pictures do you want in one burst?</p>
-            <InputNumber defaultValue={burst} onChange={(e)=>setBurst(e)} style={{width: '100%'}}/>
+            <InputNumber defaultValue={burst} onChange={(e)=>dispatch(updateSettings({burst: e}))} style={{width: '100%'}}/>
         </Panel>
         <Panel header={<p>Burst Rate <FieldTimeOutlined /></p>} key="3" showArrow={false}>
             <p className='description'>How many seconds between each picture?</p>
-            <InputNumber defaultValue={burstRate} onChange={(e)=>setBurstRate(e)} style={{width: '100%'}}/>
+            <InputNumber defaultValue={burstRate} onChange={(e)=>dispatch(updateSettings({burstRate: e}))} style={{width: '100%'}}/>
         </Panel>
       </Collapse>
       </Drawer>

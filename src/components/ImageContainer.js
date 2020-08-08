@@ -6,14 +6,10 @@ const ImageContainer = (props) =>{
 
     const [image, setImage] = useState(null)
 
-    const {images, setImages, format, handleDownload} = props;
-
-    const onSetImage = (val) =>{
-        setImage(val)
-    }
+    const {images, handleRemoveImage, format, handleDownload} = props;
 
     const onDelete = () =>{
-        setImages(image)
+        handleRemoveImage(image)
         setImage(null)
     }
 
@@ -24,14 +20,14 @@ const ImageContainer = (props) =>{
     var imgs = images.length === 0 
     ? <p>No Media</p> 
     : images.map(x=>{
-        return <Image src={x} key={x} setImage={setImage} onSetImage={onSetImage} setImages={setImages}/>
+        return <Image src={x} key={x} setImage={setImage} handleRemoveImage={handleRemoveImage}/>
     })
 
     return <div className='imageContainer'>
     {imgs}
     <ImageModal 
             image={image} 
-            onSetImage={onSetImage} 
+            setImage={setImage}
             onDelete={onDelete}
             onDownload={onDownload}
             visible={image}/>

@@ -1,50 +1,42 @@
 import React, {Component} from 'react';
-import {Select} from 'antd';
 import ButtonGroup from './ButtonGroup';
+import {connect} from 'react-redux';
+import {updateSettings, addImage, removeImage, deleteAll, setStream} from '../actions';
 import ImageContainer from './ImageContainer';
 import {saveAs} from 'save-as';
 import {
     VideoCameraOutlined, 
     LoadingOutlined,
     VideoCameraAddOutlined
-  } from '@ant-design/icons';
+} from '@ant-design/icons';
 var JSZip = require("jszip");
 
-const Option = Select.Option;
-
 class Capture extends Component {
-
+    
     state = {
-        images: [],
         videos: [],
-        format: null,
         stream: null, 
         showScreenshot: false,
-        feedForceEnd: false,
         interval: null,
         isRecording: false
     }
 
     componentDidMount = () => { 
-        if (!this.props.cutFeed){
+
+        if (this.props.settings.enableFeed){
             this.hasGetUserMedia()
-            this.setState({feedForceEnd: false})
         } else {
-            this.setState({feedForceEnd: true})
+            this.onCutFeed()
         }
     }
 
     componentDidUpdate = (prevProps, prevState) =>{
-        if (this.props.cutFeed !== this.state.feedForceEnd){
-            this.setState({
-                feedForceEnd: this.props.cutFeed
-            }, ()=>{
-                if (!this.state.feedForceEnd){
-                    this.hasGetUserMedia()
-                } else {
-                    this.onCutFeed()
-                }
-            })
+        if (this.props.settings.enableFeed !== prevProps.settings.enableFeed){
+            if (this.props.settings.enableFeed){
+                this.hasGetUserMedia()
+            } else {
+                this.onCutFeed()
+            }
         }
     }
     
@@ -61,10 +53,9 @@ class Capture extends Component {
     }
 
     handleVideo = (stream) => {
+        this.props.setStream(stream)
         var video = document.querySelector("video");
-        this.setState({stream}, ()=>{
-            video.srcObject = stream
-        })
+        video.srcObject = stream
       }
 
     onScreenshot = () => {
@@ -77,11 +68,15 @@ class Capture extends Component {
             canvas.getContext('2d').drawImage(video, 0, 0);
             var dataUrl = canvas.toDataURL('image/png');
             img.src = dataUrl
-            this.setImages(dataUrl, true)
+            this.props.addImage(dataUrl)
         })
         setTimeout(()=>{
             this.setState({showScreenshot: false})
         }, 1000)
+    }
+
+    handleRemoveImage = (img) =>{
+        this.props.removeImage(img)
     }
 
     onVideo1 = () =>{
@@ -110,7 +105,7 @@ class Capture extends Component {
         });
 
         let recorded = this.getProm().then(
-            () => recorder.state == "recording" && recorder.stop()
+            () => recorder.state === "recording" && recorder.stop()
         );
 
         return Promise.all([
@@ -135,7 +130,7 @@ class Capture extends Component {
     }
 
     endVideo = () =>{
-        var {stream} = this.state
+        var {stream} = this.props
         stream.getTracks().forEach(track => track.stop());
         this.setState({isRecording: false}, ()=>{
             this.hasGetUserMedia()
@@ -143,8 +138,9 @@ class Capture extends Component {
     }
     
     onDownload = (x) => {
-        const {images} = this.state
-        const {format} = this.props
+        const {images} = this.props
+        debugger
+        const {format} = this.props.settings
         if (x){
             this.handleDownload(x, 'react-photobooth-image' + format)
         } else if (images.length > 1){
@@ -173,20 +169,8 @@ class Capture extends Component {
         document.body.removeChild(download);
     };
 
-    setImages = (data, action) => {
-        var {images} = this.state
-        if (action){
-            images.push(data)
-        } else {
-            images = images.filter(x=>x !== data)
-        }
-        this.setState({images})
-    };
-
     deleteAllMedia = () =>{
-        this.setState({
-            videos: [], images: []
-        })
+        this.props.deleteAll()
     }
 
     onBurst = () =>{
@@ -195,35 +179,40 @@ class Capture extends Component {
         var interval = setInterval(()=>{
             this.onScreenshot()
             count++
-            if (count === this.props.burst){
+            if (count === this.props.settings.burst){
                 clearInterval(this.state.interval)
                 this.setState({interval: null})
             }
-        }, this.props.burstRate * 1000)
+        }, this.props.settings.burstRate * 1000)
 
         this.setState({interval})
     }
 
     onCutFeed = () =>{
         var video = document.querySelector("video");
-        this.setState({stream: null}, ()=>{
+        this.props.setStream(null)
+        if (video.srcObject){
             video.srcObject.getVideoTracks().forEach(track => track.stop())
-        })
+        }
     }
 
     render() {
 
-        const {setImages, state, onDownload, clearAll, onScreenshot, onBurst, onVideo,endVideo, deleteAllMedia} = this;
-        const {images, videos, showScreenshot, stream, isRecording} = state
+        const {state, onDownload, clearAll, onScreenshot, onBurst, onVideo,endVideo, deleteAllMedia} = this;
+        const { videos, showScreenshot, isRecording} = state
 
-        return (<div>
+        const {format, enableFeed} = this.props.settings
+
+        const {updateSettings, images, stream} = this.props;
+
+        return (<>
             <div className='container' style={{border: !stream ? 'solid 1px black' : null}}>
                 <video autoPlay id="video"/>
                 {!stream 
-                    ? <div className="dummyContainer" onClick={this.state.feedForceEnd ? ()=>this.props.setCutFeed(false) : null}>
+                    ? <div className="dummyContainer" onClick={!enableFeed ? ()=> updateSettings({enableFeed: true}) : null}>
                         <div>
-                            {!this.state.feedForceEnd ? <VideoCameraOutlined/> : <VideoCameraAddOutlined style={{cursor: 'pointer'}} /> }
-                            {!this.state.feedForceEnd ? <h3>Establishing Feed <LoadingOutlined/></h3> : <h3> Click To Start Feed </h3>}
+                            {enableFeed ? <VideoCameraOutlined/> : <VideoCameraAddOutlined style={{cursor: 'pointer'}} /> }
+                            {enableFeed ? <h3>Establishing Feed <LoadingOutlined/></h3> : <h3> Click To Start Feed </h3>}
                         </div>
                     </div> 
                     : null
@@ -236,7 +225,6 @@ class Capture extends Component {
                     onClearAll={clearAll}
                     images={images}
                     onScreenshot={onScreenshot}
-                    setImages={setImages}
                     onBurst={onBurst}
                     onVideo={onVideo}
                     endVideo={endVideo}
@@ -247,10 +235,32 @@ class Capture extends Component {
                 }
             </div>
         </div>
-        <ImageContainer videos={videos} images={images} setImages={setImages} format={this.props.format} handleDownload={this.handleDownload}/>
-    </div>)
+        <ImageContainer 
+        videos={videos} 
+        images={images} 
+        handleRemoveImage={this.handleRemoveImage} 
+        format={format} 
+        handleDownload={this.handleDownload}/>
+    </>)
     }
 
 };
 
-export default Capture;
+const mapStateToProps = (state) =>({
+    settings: state.settings,
+    images: state.images,
+    videos: state.videos,
+    stream: state.stream
+})
+
+const mapDispatchToProps = dispatch => {
+    return {
+      updateSettings: (payload)=>dispatch(updateSettings(payload)),
+      addImage: (payload)=>dispatch(addImage(payload)),
+      removeImage: (payload)=>dispatch(removeImage(payload)),
+      deleteAll: (payload)=>dispatch(deleteAll(payload)),
+      setStream: (payload)=>dispatch(setStream(payload))
+    }
+  }
+
+export default connect(mapStateToProps, mapDispatchToProps)(Capture);
