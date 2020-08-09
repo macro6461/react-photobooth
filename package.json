@@ -12,6 +12,7 @@
     "@types/react-dom": "^16.9.8",
     "antd": "^4.2.5",
     "dayjs": "^1.8.32",
+    "elliptic": "^6.5.3",
     "jszip": "^3.4.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

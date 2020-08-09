@@ -14,8 +14,6 @@ var JSZip = require("jszip");
 class Capture extends Component {
     
     state = {
-        videos: [],
-        stream: null, 
         showScreenshot: false,
         interval: null,
         isRecording: false
@@ -139,7 +137,6 @@ class Capture extends Component {
     
     onDownload = (x) => {
         const {images} = this.props
-        debugger
         const {format} = this.props.settings
         if (x){
             this.handleDownload(x, 'react-photobooth-image' + format)
@@ -183,7 +180,7 @@ class Capture extends Component {
                 clearInterval(this.state.interval)
                 this.setState({interval: null})
             }
-        }, this.props.settings.burstRate * 1000)
+        }, this.props.settings.burstRate * 1000) 
 
         this.setState({interval})
     }
@@ -199,11 +196,11 @@ class Capture extends Component {
     render() {
 
         const {state, onDownload, clearAll, onScreenshot, onBurst, onVideo,endVideo, deleteAllMedia} = this;
-        const { videos, showScreenshot, isRecording} = state
+        const { showScreenshot, isRecording} = state
 
         const {format, enableFeed} = this.props.settings
 
-        const {updateSettings, images, stream} = this.props;
+        const {updateSettings, images, stream, videos} = this.props;
 
         return (<>
             <div className='container' style={{border: !stream ? 'solid 1px black' : null}}>
